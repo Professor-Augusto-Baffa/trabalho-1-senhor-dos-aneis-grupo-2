@@ -31,10 +31,12 @@ class App:
 
     def __init__(self):
         pygame.init()
-        App.screen = pygame.display.set_mode((800, 650))
-        pygame.display.set_caption("Jornada na Terra Media")
-        App.running = True
         self.mapa = self.open_map()
+        self.background_color = Color("ivory3")
+        App.screen = pygame.display.set_mode((1200, 650))
+        App.screen.fill(self.background_color)
+        App.running = True
+        pygame.display.set_caption("Jornada na Terra Media")
 
     def run(self):
         while App.running:
@@ -60,9 +62,9 @@ class App:
         return matrix_map
 
     def draw_map(self):
-        size = 4
-        pos_x = 0
-        pos_y = 0
+        size = 5
+        pos_x = 50
+        pos_y = 50
         for line in self.mapa:
             for letter in line:
                 if letter == '#':
@@ -82,7 +84,7 @@ class App:
                     pygame.draw.rect(self.screen, Color("darkgoldenrod1"), pygame.Rect(pos_x,pos_y,size,size))
                 pos_x += size
             pos_y += size
-            pos_x = 0
+            pos_x = 50
 
 
 if __name__ == '__main__':
