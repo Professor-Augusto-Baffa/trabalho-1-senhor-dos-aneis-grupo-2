@@ -1,4 +1,3 @@
-from mapa import Mapa
 import pygame
 import random
 from pygame.locals import *
