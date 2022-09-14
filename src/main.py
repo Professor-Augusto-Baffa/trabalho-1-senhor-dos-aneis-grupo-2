@@ -1,6 +1,4 @@
-from mapa import Mapa
 import pygame
-import random
 from pygame.locals import *
 from copy import deepcopy
 
@@ -80,7 +78,6 @@ class App:
                 elif letter == 'P':
                     pygame.draw.rect(self.screen, Color("black"), pygame.Rect(pos_x,pos_y,size,size))
                 else:
-                    print(letter)
                     pygame.draw.rect(self.screen, Color("darkgoldenrod1"), pygame.Rect(pos_x,pos_y,size,size))
                 pos_x += size
             pos_y += size
