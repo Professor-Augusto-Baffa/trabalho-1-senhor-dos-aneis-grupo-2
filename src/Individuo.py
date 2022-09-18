@@ -57,6 +57,9 @@ class Individuo():
             tempoTotal+=tempoGasto
         return tempoTotal
 
+    def get_fitness(self):
+        return self.tempoGasto
+
 if __name__ == '__main__':
     Individuo = Individuo(etapas=individuo_vars.etapas, hobbits=individuo_vars.hobbits)
     print("Terminei!")
