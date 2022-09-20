@@ -1,8 +1,7 @@
 import pygame
-<<<<<<< HEAD
+
 from Button import Button
-=======
->>>>>>> main
+
 from pygame.locals import *
 from copy import deepcopy
 
@@ -93,10 +92,6 @@ class App:
                 elif letter == 'P':
                     pygame.draw.rect(self.screen, Color("black"), pygame.Rect(pos_x,pos_y,size,size))
                 else:
-<<<<<<< HEAD
-                    #print(letter)
-=======
->>>>>>> main
                     pygame.draw.rect(self.screen, Color("darkgoldenrod1"), pygame.Rect(pos_x,pos_y,size,size))
                 pos_x += size
             pos_y += size
