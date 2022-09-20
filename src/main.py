@@ -3,7 +3,7 @@ import pygame
 from Button import Button
 
 from pygame.locals import *
-from copy import deepcopy
+import map
 
 class Text:
 
@@ -32,7 +32,7 @@ class App:
 
     def __init__(self):
         pygame.init()
-        self.mapa = self.open_map()
+        self.mapa = map.Map.read_from_file("mapa.txt")
         self.background_color = Color("ivory3")
         App.screen = pygame.display.set_mode((1200, 650))
         App.screen.fill(self.background_color)
@@ -60,25 +60,15 @@ class App:
             pygame.display.update()
 
         pygame.quit()
-    
-    def open_map(self):
-        map = open("mapa.txt",'r')
-        matrix_map = []
-        for line in map:
-            matrix_line = []
-            for letter in line:
-                if letter != '\n':
-                    matrix_line.append(letter)
-            matrix_map.append(deepcopy(matrix_line))
-        return matrix_map
 
     def draw_map(self):
         
         size = 5
         pos_x = 20
         pos_y = 20
-        for line in self.mapa:
-            for letter in line:
+        for line in self.mapa.matrix:
+            for tile in line:
+                letter = tile.terrain_type
                 if letter == '#':
                     pygame.draw.rect(self.screen, Color("blue4"), pygame.Rect(pos_x,pos_y,size,size))
                 elif letter == '.':
