@@ -1,5 +1,5 @@
 import pygame
-import random
+from Button import Button
 from pygame.locals import *
 from copy import deepcopy
 
@@ -36,15 +36,25 @@ class App:
         App.screen.fill(self.background_color)
         App.running = True
         pygame.display.set_caption("Jornada na Terra Media")
-
+        self.tempo_total = 0
+        self.jornada_string = "Tempo da jornada: {tempo}".format(tempo=self.tempo_total)
+        self.timer = Text(self.jornada_string,(30,400),32)
+        self.go_button = Button(700,400,150,80,"Iniciar",onclickFunction=self.foo, screen=App.screen)
+        self.stop_button = Button(500,400,150,80,"Iniciar",onclickFunction=self.foo, screen=App.screen)
+        self.reset_button = Button(300,400,150,80,"Iniciar",onclickFunction=self.foo, screen=App.screen)
+        
     def run(self):
         while App.running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     App.running = False
-            
+            #self.jornada_string = "Tempo da jornada: {tempo}".format(tempo=self.tempo_total)
+            #self.timer = Text(self.jornada_string,(30,400),32)
+            self.go_button.process()
+            self.stop_button.process()
+            self.reset_button.process()
             self.draw_map()
-
+            self.timer.draw()
             pygame.display.update()
 
         pygame.quit()
@@ -61,9 +71,10 @@ class App:
         return matrix_map
 
     def draw_map(self):
+        
         size = 5
-        pos_x = 50
-        pos_y = 50
+        pos_x = 20
+        pos_y = 20
         for line in self.mapa:
             for letter in line:
                 if letter == '#':
@@ -79,12 +90,27 @@ class App:
                 elif letter == 'P':
                     pygame.draw.rect(self.screen, Color("black"), pygame.Rect(pos_x,pos_y,size,size))
                 else:
-                    print(letter)
+                    #print(letter)
                     pygame.draw.rect(self.screen, Color("darkgoldenrod1"), pygame.Rect(pos_x,pos_y,size,size))
                 pos_x += size
             pos_y += size
-            pos_x = 50
+            pos_x = 20
 
+    def foo(self):
+        self.tempo_total+=1
+        print(self.tempo_total)
+
+    def start_search(self):
+        #TODO
+        return
+
+    def reset_search(self):
+        #TODO
+        return
+
+    def stop_search(self):
+        #TODO
+        return
 
 if __name__ == '__main__':
     App().run()
