@@ -25,8 +25,8 @@ class Otimizacao():
                 elite = deepcopy(populacao_ordenada[:self.qnt_elite])
                 #recombina os genes dos pais
                 self.populacao = self.recombina_populacao(populacao_ordenada)
-                self.regenera_populacao() #DUVIDA MUTA SO OS FILHOS
                 self.etapa_mutacao()
+                self.regenera_populacao() #DUVIDA MUTA SO OS FILHOS
                 for individuo in elite:
                     self.populacao.append(individuo)
                 print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
@@ -122,7 +122,7 @@ class Otimizacao():
         return
     
     def etapa_mutacao(self):    #Responsavel pela etapa de mutacao do algoritimo genetico
-        for i in range(round(self.taxa_de_mutacao * self.qnt_individuos)):
+        for i in range(round(self.taxa_de_mutacao * self.qnt_individuos-self.qnt_filhos)):
             self.mutacao()
         return
 
@@ -134,8 +134,9 @@ class Otimizacao():
         return self.melhor_individuo
 
 if __name__ == '__main__':
-    Otimizacao=Otimizacao(qnt_individuos=1000, taxa_de_mutacao=1/16, qnt_elite=40, geracoes=1000, qnt_pais=100, qnt_filhos=500, tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=10000, taxa_de_mutacao=0.04, qnt_elite=100, geracoes=1000, qnt_pais=1000, qnt_filhos=7000, tamanho_do_individuo=16)
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")
     print(melhor_individuo.individuo)
+    melhor_individuo.salva_individuo()

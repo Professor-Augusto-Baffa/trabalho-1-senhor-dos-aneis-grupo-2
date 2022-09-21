@@ -63,6 +63,27 @@ class Individuo():
     def get_fitness(self):
         return self.tempoGasto
 
+    def salva_individuo(self):
+        fitness = 0
+        arq = open("melhor_individuo.txt","r")
+        for linha in arq:
+            if "Fitness" in linha:
+                lista_linha = linha.split(" ")
+                fitness = float(lista_linha[1][:-2])
+                arq.close()
+                break
+        
+        if self.tempoGasto < fitness:
+            arq = open("melhor_individuo.txt",'w')
+            arq.write("Fitness: {fitness}".format(fitness = self.tempoGasto))
+            for etapa in self.individuo:
+                arq.write("\n" + etapa[0] + " ")
+                for hobbit in etapa[1]:
+                    arq.write(hobbit + " ")
+        arq.close
+
 if __name__ == '__main__':
-    Individuo = Individuo(etapas=individuo_vars.etapas, hobbits=individuo_vars.hobbits)
+    indiv = Individuo(etapas=individuo_vars.etapas, hobbits=individuo_vars.hobbits)
+    indiv.salva_individuo()
+    print(indiv.get_fitness())
     print("Terminei!")
