@@ -9,7 +9,7 @@ class Button():
         self.onclickFunction = onclickFunction
         self.onePress = onePress
         self.screen = screen
-        self.font = font = pygame.font.SysFont('Arial', 40)
+        self.font = pygame.font.SysFont('Arial', 40)
         self.objects = []
 
         self.fillColors = {

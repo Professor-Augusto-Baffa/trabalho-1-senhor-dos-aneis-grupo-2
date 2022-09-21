@@ -1,3 +1,5 @@
+from enum import Enum
+
 etapas = {
         "etapa_2" : 10,
         "etapa_3" : 30,
@@ -22,3 +24,9 @@ hobbits = [
             ["Merry", 1.3, 7],
             ["Pippin", 1.2, 7]
         ]
+
+class hobbitsEnum(Enum):
+        Frodo = 0
+        Sam = 1
+        Merry = 2
+        Pippin = 3

@@ -7,12 +7,15 @@ import random
 #usar criacionismo???
 class Individuo():
     
-    def __init__(self, etapas, hobbits):
+    def __init__(self, etapas, hobbits, individuo = None):
 
         self.etapas = etapas
 
         self.hobbits = hobbits
-        self.individuo = self.cria_individuo() #A estrutura representando o individuo em si
+        if individuo:
+            self.individuo = individuo
+        else:
+            self.individuo = self.cria_individuo() #A estrutura representando o individuo em si
         self.tempoGasto = self.calcula_tempo() #Individuo mais apto sera o com menor tempo
         #print(self.individuo)
         #print(self.hobbits)
