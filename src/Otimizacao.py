@@ -80,12 +80,16 @@ class Otimizacao():
 
         for i in range(self.qnt_filhos):
             individuo = []
-            pais_especificos = random.choices(pais,k=2)
-            for j in range(len(pais_especificos[0].individuo)):
-                genes = [deepcopy(pais_especificos[0].individuo[j]),deepcopy(pais_especificos[1].individuo[j])]
-                individuo.append(random.choice(genes))
-            individuo = self.valida_individuo(individuo)
-            filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas, individuo=individuo)
+            #pais_especificos = random.choices(pais,k=2)
+            pais_especificos = self.seleciona_pais()
+            if len(pais_especificos) != 2:
+                filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas)
+            else:
+                for j in range(len(pais_especificos[0].individuo)):
+                    genes = [deepcopy(pais_especificos[0].individuo[j]),deepcopy(pais_especificos[1].individuo[j])]
+                    individuo.append(random.choice(genes))
+                individuo = self.valida_individuo(individuo)
+                filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas, individuo=individuo)
             nova_populacao.append(deepcopy(filho))
         
         return nova_populacao
