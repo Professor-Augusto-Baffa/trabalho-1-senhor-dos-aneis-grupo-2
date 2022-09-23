@@ -90,6 +90,27 @@ class Otimizacao():
         
         return nova_populacao
 
+    def seleciona_pais(self): # recebe a populacao e faz a selecao dos pais via metodo da roleta
+        pais = []
+        total_fitness = 0.0
+        r = random.random()
+
+        for i in self.populacao:
+            total_fitness += i.get_fitness()
+
+        for i in self.populacao:
+            pi = i.get_fitness()/total_fitness
+
+            if r < pi:
+                pais.append(i)
+            else:
+                r -= pi
+
+            if len(pais) == 2:
+                break
+
+        return pais
+
     def valida_individuo(self, individuo): # recebe uma lista com o individuo e confere se ele esta nos conformes
         
         qnt_hobbit = [0,0,0,0]
