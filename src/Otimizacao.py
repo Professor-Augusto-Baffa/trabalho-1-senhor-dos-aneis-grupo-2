@@ -12,23 +12,34 @@ class Otimizacao():
             
             self.qnt_individuos = qnt_individuos
             self.taxa_de_mutacao = taxa_de_mutacao
+            self.taxa_de_mutacao_original = taxa_de_mutacao
             self.qnt_elite = qnt_elite
             self.geracoes = geracoes
             self.qnt_pais = qnt_pais
             self.qnt_filhos = qnt_filhos
             self.tamanho_do_individuo = tamanho_do_individuo
+            populacao_ordenada = []
+            antigo_melhor = []
             
             self.populacao = self.cria_populacao()
             
             for geracao in range(self.geracoes):
+                if populacao_ordenada != []:
+                    antigo_melhor = populacao_ordenada[0]
                 populacao_ordenada = self.ordena_populacao()
+                melhor_individuo = populacao_ordenada[0]
+                if antigo_melhor == melhor_individuo:
+                    self.taxa_de_mutacao+=0.01
+                else: 
+                    self.taxa_de_mutacao = self.taxa_de_mutacao_original
                 elite = deepcopy(populacao_ordenada[:self.qnt_elite])
                 #recombina os genes dos pais
-                self.populacao = self.recombina_populacao(populacao_ordenada)
+                self.populacao = self.recombina_messy(populacao_ordenada)
                 self.etapa_mutacao()
-                self.regenera_populacao() #DUVIDA MUTA SO OS FILHOS
+                self.regenera_populacao()
                 for individuo in elite:
                     self.populacao.append(individuo)
+                
                 print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
             
             self.ultima_geracao_ordenada = self.ordena_populacao()
@@ -58,6 +69,23 @@ class Otimizacao():
             filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas, individuo=individuo)
             nova_populacao.append(filho)
 
+        return nova_populacao
+    
+    def recombina_messy(self, populacao_ordenada):
+
+        nova_populacao = []
+        pais = populacao_ordenada[:self.qnt_pais]
+
+        for i in range(self.qnt_filhos):
+            individuo = []
+            pais_especificos = random.choices(populacao_ordenada,k=2)
+            for j in range(len(pais_especificos[0].individuo)):
+                genes = [deepcopy(pais_especificos[0].individuo[j]),deepcopy(pais_especificos[1].individuo[j])]
+                individuo.append(random.choice(genes))
+            individuo = self.valida_individuo(individuo)
+            filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas, individuo=individuo)
+            nova_populacao.append(deepcopy(filho))
+        
         return nova_populacao
 
     def valida_individuo(self, individuo): # recebe uma lista com o individuo e confere se ele esta nos conformes
@@ -94,12 +122,10 @@ class Otimizacao():
                 if hobbit not in individuo[etapa][1]:
                     individuo[etapa][1].append(hobbit)
                     qnt_hobbit[pos] += 1
-                #talvez dure pra sempre mas ne, tem q ser aleatorio???
-                #DUVIDA
         return individuo
 
 
-    def mutacao(self):          #Funcao que define uma unica mutacao
+    def mutacao_parcial(self):          #Funcao que define uma unica mutacao
         
         individuo = random.randint(0,len(self.populacao)-1) #individuo a ser mutado
         #retirando um hobbit
@@ -109,7 +135,7 @@ class Otimizacao():
             hobbit_pos = random.randint(0,len(self.populacao[individuo].individuo[etapa][1])-1)
             hobbit = self.populacao[individuo].individuo[etapa][1].pop(hobbit_pos)
         else:
-            self.mutacao()
+            self.mutacao_parcial()
             return
         
         #adicionando o hobbit retirado
@@ -121,9 +147,26 @@ class Otimizacao():
         
         return
     
+    def mutacao_completa(self):
+        
+        individuo = random.randint(0,len(self.populacao)-1)
+        etapa = random.randint(0,len(self.populacao[0].individuo)-1)
+        nova_etapa = random.randint(0,len(self.populacao[0].individuo)-1)
+        while(etapa == nova_etapa):
+            nova_etapa = random.randint(0,len(self.populacao[0].individuo)-1)
+
+        self.populacao[individuo].individuo[etapa][1],self.populacao[individuo].individuo[nova_etapa][1] = self.populacao[individuo].individuo[nova_etapa][1],self.populacao[individuo].individuo[etapa][1]
+        return
+
+
+
     def etapa_mutacao(self):    #Responsavel pela etapa de mutacao do algoritimo genetico
-        for i in range(round(self.taxa_de_mutacao * self.qnt_individuos-self.qnt_filhos)):
-            self.mutacao()
+        for i in range(round(self.taxa_de_mutacao * (self.qnt_individuos-self.qnt_filhos))):
+            mutacao = random.randint(0,1)
+            if mutacao == 1:
+                self.mutacao_completa()
+            else:
+                self.mutacao_parcial()
         return
 
     def ordena_populacao(self):
@@ -134,7 +177,7 @@ class Otimizacao():
         return self.melhor_individuo
 
 if __name__ == '__main__':
-    Otimizacao=Otimizacao(qnt_individuos=10000, taxa_de_mutacao=0.04, qnt_elite=100, geracoes=1000, qnt_pais=1000, qnt_filhos=7000, tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=1000, taxa_de_mutacao=0.05, qnt_elite=20, geracoes=1000, qnt_pais=500, qnt_filhos=800, tamanho_do_individuo=16)
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")

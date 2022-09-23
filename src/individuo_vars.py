@@ -17,6 +17,7 @@ etapas = {
         "etapa_F" : 130,
         "etapa_G" : 140,
         "etapa_H" : 150,
+        "etapa_final" : 0
         }
 hobbits = [
             ["Frodo", 1.5, 7],

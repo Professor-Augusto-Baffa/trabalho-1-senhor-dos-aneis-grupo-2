@@ -1,10 +1,7 @@
 from copy import deepcopy
 import individuo_vars
 import random
-#recombinação -> não faço ideia de como fazer
-#mutação -> retirar um hobbit de uma etapa e colocar ele em uma etapa difierente
-#usar elitismo???
-#usar criacionismo???
+
 class Individuo():
     
     def __init__(self, etapas, hobbits, individuo = None):
