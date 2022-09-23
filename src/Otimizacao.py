@@ -28,7 +28,9 @@ class Otimizacao():
                     antigo_melhor = populacao_ordenada[0]
                 populacao_ordenada = self.ordena_populacao()
                 melhor_individuo = populacao_ordenada[0]
-                if antigo_melhor == melhor_individuo:
+                if self.taxa_de_mutacao > 0.5:
+                    pass
+                elif antigo_melhor == melhor_individuo:
                     self.taxa_de_mutacao+=0.01
                 else: 
                     self.taxa_de_mutacao = self.taxa_de_mutacao_original
@@ -37,7 +39,7 @@ class Otimizacao():
                 self.populacao = self.recombina_messy(populacao_ordenada)
                 self.etapa_mutacao()
                 self.regenera_populacao()
-                for individuo in elite:
+                for individuo in elite:#mutar a elite???? ou clones da elite
                     self.populacao.append(individuo)
                 
                 print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
@@ -62,7 +64,7 @@ class Otimizacao():
         pais = populacao_ordenada[:self.qnt_pais]
         
         for i in range(self.qnt_filhos):
-            pai_especifico = random.choices(populacao_ordenada,k=2)
+            pai_especifico = random.choices(pais,k=2)
             #primeira metade do primeiro pai, segunda metade do segundo pai
             individuo = pai_especifico[0].individuo[:int(self.tamanho_do_individuo/2)] + pai_especifico[1].individuo[int(self.tamanho_do_individuo/2):]
             individuo = self.valida_individuo(individuo)
@@ -78,7 +80,7 @@ class Otimizacao():
 
         for i in range(self.qnt_filhos):
             individuo = []
-            pais_especificos = random.choices(populacao_ordenada,k=2)
+            pais_especificos = random.choices(pais,k=2)
             for j in range(len(pais_especificos[0].individuo)):
                 genes = [deepcopy(pais_especificos[0].individuo[j]),deepcopy(pais_especificos[1].individuo[j])]
                 individuo.append(random.choice(genes))
@@ -105,20 +107,32 @@ class Otimizacao():
         for i,qnt in enumerate(qnt_hobbit):
             etapa = 0
             hobbit = hobbits[i][0]
-            while qnt_hobbit[i] > 7:
-                if hobbit in individuo[etapa][1] and len(individuo[etapa][1]) > 1:
+            etapas = []
+            if qnt_hobbit[i] > 7:
+                for j, posicao in enumerate(individuo):
+                    if hobbit in posicao[1] and len(posicao[1]) > 1:
+                        etapas.append(j)
+                while qnt_hobbit[i] > 7:
+                    #if hobbit in individuo[etapa][1] and len(individuo[etapa][1]) > 1:
+                    #    individuo[etapa][1].remove(hobbit)
+                    #    qnt_hobbit[i] -= 1
+                    #etapa+=1
+                    #if etapa >= self.tamanho_do_individuo:
+                    #    #print("Houve algum erro na validação do individuo")
+                    #    #Individuo é invalido, retorna None para gerar um novo individuo
+                    #    return None
+                    if etapas == []:
+                        return None
+                    etapa = random.choice(etapas)
                     individuo[etapa][1].remove(hobbit)
+                    etapas.remove(etapa)
                     qnt_hobbit[i] -= 1
-                etapa+=1
-                if etapa >= self.tamanho_do_individuo:
-                    #print("Houve algum erro na validação do individuo")
-                    #Individuo é invalido, retorna None para gerar um novo individuo
-                    return None
+
         #colocar os que faltam
         for pos in range(len(qnt_hobbit)):
             hobbit = hobbits[pos][0]
             while qnt_hobbit[pos] < 7:
-                etapa = random.choice(range(15))
+                etapa = random.choice(range(self.tamanho_do_individuo))
                 if hobbit not in individuo[etapa][1]:
                     individuo[etapa][1].append(hobbit)
                     qnt_hobbit[pos] += 1
