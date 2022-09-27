@@ -1,7 +1,8 @@
+import map
+
 import enum
 import typing
 import pygame
-import map
 
 class Window:
 
@@ -10,35 +11,51 @@ class Window:
 
     def __init__(self) -> None:
         self.background_color = pygame.Color("ivory3")
-        self.surface = pygame.display.set_mode((1200, 650))
+        self.width = 1200
+        self.height = 650
+        self.surface = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Jornada na Terra Media")
-        self.renderers: typing.Dict[str, 'Window.RendererType'] = dict()
+        self.renderers: typing.Dict[int, typing.Dict[str, 'Window.RendererType']] = dict()
         self.event_handlers: typing.Dict[int, typing.Dict[str, 'Window.RendererType']] = dict()
     
     def display(self) -> None:
         self.surface.fill(self.background_color)
-        for render in self.renderers.values():
-            render(self.surface)
+        for z_pos in sorted(self.renderers.keys()):
+            for render in self.renderers[z_pos].values():
+                render(self.surface)
         pygame.display.update()
 
-    def add_renderer(self, key: str, renderer: 'Window.RendererType') -> None:
-        self.renderers[key] = renderer
+    def add_renderer(self, key: str, renderer: 'Window.RendererType', z_position: int = 0) -> None:
+        if self.renderers.get(z_position, None) is None:
+            self.renderers[z_position] = dict()
+        self.renderers[z_position][key] = renderer
     
     def remove_renderer(self, key: str) -> None:
-        del self.renderers[key]
+        for z_pos in self.renderers.keys():
+            if self.renderers[z_pos].get(key, None) is None:
+                continue
+            del self.renderers[z_pos][key]
 
-    def add_event_handler(self, event_type: int, key: str, handler: 'Window.EventHandlerType') -> None:
+    def add_event_handler(self, key: str, event_type: int, handler: 'Window.EventHandlerType') -> None:
         handlers = self.event_handlers.get(event_type, None)
         if handlers is None:
             handlers = dict()
             self.event_handlers[event_type] = handlers
         handlers[key] = handler
     
-    def remove_event_handler(self, event_type: int, key: str) -> None:
+    def remove_event_handler(self, key: str, event_type: typing.Optional[int] = None) -> None:
+        if event_type is None:
+            for et in self.event_handlers.keys():
+                if self.event_handlers[et].get(key, None) is not None:
+                    del self.event_handlers[et][key]
+                if len(self.event_handlers[et].keys()) == 0:
+                    del self.event_handlers[et]
+            return
         handlers = self.event_handlers.get(event_type, None)
         if handlers is None:
             return
-        del handlers[key]
+        if handlers.get(key, None) is not None:
+            del handlers[key]
         if len(handlers.keys) > 0:
             return
         del self.event_handlers[event_type]
@@ -53,29 +70,43 @@ class Window:
         return
 
 
+class Depths(enum.IntEnum):
+    MAP = -10
+    DEFAULT = 0
+    PATH = 10
+    ONGOING_PATH = 20
+    TEXT = 30
+    BUTTON = 40
+
 
 class Rendered:
     '''Base class for elements that are drawn to the screen'''
 
     __instance_seq = 0
 
+    z_position: int = Depths.DEFAULT
+
     def __init__(self) -> None:
         self._renderer_key = f'{Rendered}.{Rendered.__instance_seq}'
         Rendered.__instance_seq += 1
     
     def set_window(self, window: Window) -> None:
-        window.add_renderer(self._renderer_key, self.draw)
+        window.add_renderer(self._renderer_key, self.draw, z_position=self.z_position)
+
+    def remove_from_window(self, window: Window) -> None:
+        window.remove_renderer(self._renderer_key)
+        window.remove_event_handler(self._renderer_key)
     
     def draw(self, surface: pygame.Surface) -> None:
         '''Override to draw this element on the given surface'''
         pass
-        
 
 
 class Text(Rendered):
 
     def __init__(self, text: str, pos: typing.Tuple[int, int], fontsize: int):
         super().__init__()
+        self.z_position = Depths.TEXT
         self.text = text
         self.pos = pos
 
@@ -94,12 +125,10 @@ class Text(Rendered):
         surface.blit(self.img, self.rect)
 
 
-
 class ButtonState(enum.IntEnum):
     NORMAL = enum.auto()
     HIGHLIGHTED = enum.auto()
     PRESSED = enum.auto()
-
 
 
 class Button(Rendered):
@@ -109,6 +138,7 @@ class Button(Rendered):
         on_click: typing.Optional[typing.Callable[[], None]] = None
     ) -> None:
         super().__init__()
+        self.z_position = Depths.BUTTON
 
         self.text = text
         self.pos = pos
@@ -116,7 +146,9 @@ class Button(Rendered):
         self.on_click = on_click
         self.state = ButtonState.NORMAL
         
-        self.font = pygame.font.SysFont('Arial', 20)
+        font_size = min(max(size[1] - 20, 14), 20)
+        self.font = pygame.font.SysFont('Arial', font_size)
+        self.size = (self.size[0], font_size + 20)
         self.fontcolor = pygame.Color(20, 20, 20)
         self.fillColors: typing.Dict[ButtonState, str] = {
             ButtonState.NORMAL: '#ffffff',
@@ -169,9 +201,9 @@ class Button(Rendered):
     
     def set_window(self, window: Window) -> None:
         super().set_window(window)
-        window.add_event_handler(pygame.MOUSEBUTTONDOWN, self._renderer_key, self._process_button_down)
-        window.add_event_handler(pygame.MOUSEBUTTONUP, self._renderer_key, self._process_button_up)
-        window.add_event_handler(pygame.MOUSEMOTION, self._renderer_key, self._process_mouse_move)
+        window.add_event_handler(self._renderer_key, pygame.MOUSEBUTTONDOWN, self._process_button_down)
+        window.add_event_handler(self._renderer_key, pygame.MOUSEBUTTONUP, self._process_button_up)
+        window.add_event_handler(self._renderer_key, pygame.MOUSEMOTION, self._process_mouse_move)
 
     def draw(self, surface: pygame.Surface) -> None:
         # Get bg color
@@ -187,34 +219,83 @@ class Button(Rendered):
         surface.blit(img, text_pos)
 
 
-
 class MapDisplay(Rendered):
 
-    def __init__(self, _map: map.Map) -> None:
+    def __init__(self, _map: map.Map, pos: typing.Tuple[float, float], size: typing.Tuple[float, float]) -> None:
         super().__init__()
+        self.z_position = Depths.MAP
         self.map = _map
+        self.pos = pos
+        self.size = size
+
+    def draw_tile(self, surface: pygame.Surface, tile: map.Tile, pos_x: float, pos_y: float, size: float) -> None:
+        letter = tile.terrain_type
+        if letter in '123456789ABCDEFGHI':
+            color_str = "darkgoldenrod1"
+        elif letter == '#':
+            color_str = "blue4"
+        elif letter == '.':
+            color_str = "chartreuse3"
+        elif letter == 'R':
+            color_str = "cornsilk4"
+        elif letter == 'V':
+            color_str = "darkgreen"
+        elif letter == 'M':
+            color_str = "chocolate4"
+        elif letter == 'P':
+            color_str = "black"
+        else:
+            color_str = "darkgoldenrod1"
+        pygame.draw.rect(surface, pygame.Color(color_str), pygame.Rect(pos_x,pos_y,size,size))
     
     def draw(self, surface: pygame.Surface) -> None:
-        size = 5
-        pos_x = 20
-        pos_y = 20
+        tile_width = self.size[0] / self.map.n_cols
+        tile_height = self.size[1] / self.map.n_lines
+        size = min(tile_width, tile_height)
+        pos_x = self.pos[0]
+        pos_y = self.pos[1]
         for line in self.map.matrix:
             for tile in line:
-                letter = tile.terrain_type
-                if letter == '#':
-                    pygame.draw.rect(surface, pygame.Color("blue4"), pygame.Rect(pos_x,pos_y,size,size))
-                elif letter == '.':
-                    pygame.draw.rect(surface, pygame.Color("chartreuse3"), pygame.Rect(pos_x,pos_y,size,size))
-                elif letter == 'R':
-                    pygame.draw.rect(surface, pygame.Color("cornsilk4"), pygame.Rect(pos_x,pos_y,size,size))
-                elif letter == 'V':
-                    pygame.draw.rect(surface, pygame.Color("darkgreen"), pygame.Rect(pos_x,pos_y,size,size))
-                elif letter == 'M':
-                    pygame.draw.rect(surface, pygame.Color("chocolate4"), pygame.Rect(pos_x,pos_y,size,size))
-                elif letter == 'P':
-                    pygame.draw.rect(surface, pygame.Color("black"), pygame.Rect(pos_x,pos_y,size,size))
-                else:
-                    pygame.draw.rect(surface, pygame.Color("darkgoldenrod1"), pygame.Rect(pos_x,pos_y,size,size))
+                # Add 1 to all sides to avoid spaces between squares
+                self.draw_tile(surface, tile, pos_x-1, pos_y-1, size+1)
                 pos_x += size
             pos_y += size
-            pos_x = 20
+            pos_x = self.pos[0]
+
+
+class PathDisplay(Rendered):
+
+    def __init__(
+        self, _map: map.Map, pos: typing.Tuple[float, float], size: typing.Tuple[float, float], 
+        path: typing.List[typing.Tuple[int, int]], is_done: bool = False) -> None:
+        super().__init__()
+        self.z_position = Depths.PATH if is_done else Depths.ONGOING_PATH
+        self.map = _map
+        self.pos = pos
+        self.size = size
+        self.path = path
+        self.is_done = is_done
+
+    def draw_tile(self, index: typing.Tuple[int, int], color: str, surface: pygame.Surface) -> None:
+        tile_width = self.size[0] / self.map.n_cols
+        tile_height = self.size[1] / self.map.n_lines
+        # Add 1 to all sides to avoid spaces between squares
+        size = min(tile_width, tile_height)
+        # pos = [x (horizontal), y (vertical)]
+        # index = [i (vertical), j (horizontal)]
+        pos_x = self.pos[0] + index[1] * size - 1
+        pos_y = self.pos[1] + index[0] * size - 1
+        pygame.draw.rect(surface, pygame.Color(color), pygame.Rect(pos_x,pos_y,size+1,size+1))
+
+    def draw(self, surface: pygame.Surface) -> None:
+        start_color = '#FF0000' if not self.is_done else 'darkgoldenrod1'
+        middle_color = '#CC00CC' if not self.is_done else '#222222'
+        end_color = '#FFAAFF' if not self.is_done else 'darkgoldenrod1'
+        n = len(self.path)
+        if n == 0: return
+        self.draw_tile(self.path[0], start_color, surface)
+        if n == 1: return
+        if n > 2:
+            for i in range(1, n - 1):
+                self.draw_tile(self.path[i], middle_color, surface)
+        self.draw_tile(self.path[-1], end_color, surface)
