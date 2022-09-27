@@ -1,3 +1,4 @@
+from curses.panel import new_panel
 import map, display
 import searchagent as search
 
@@ -86,6 +87,7 @@ class PathFinder:
         current_start = self.goals[self.current_goal_index - 1]
         current_goal = self.goals[self.current_goal_index]
         self.paths[current_start, current_goal] = path
+        self.search_agent.reset()
         # Use callback
         if self.found_best_path is None:
             return
@@ -93,7 +95,8 @@ class PathFinder:
 
     def _update_ongoing_path(self, new_node: search.Node) -> None:
         # Update saved path
-        new_path = self.search_agent.reconstruct_path(new_node)
+        path_to_current = self.search_agent.reconstruct_path(self.search_agent.current_node)
+        new_path = path_to_current + [new_node.wrapped]
         current_start = self.goals[self.current_goal_index - 1]
         current_goal = self.goals[self.current_goal_index]
         self.paths[current_start, current_goal] = new_path
