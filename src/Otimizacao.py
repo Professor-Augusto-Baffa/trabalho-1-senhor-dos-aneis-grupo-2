@@ -18,6 +18,7 @@ class Otimizacao():
             self.qnt_pais = qnt_pais
             self.qnt_filhos = qnt_filhos
             self.tamanho_do_individuo = tamanho_do_individuo
+            self.peso_da_mutacao = 50
             populacao_ordenada = []
             antigo_melhor = []
             
@@ -28,19 +29,23 @@ class Otimizacao():
                     antigo_melhor = populacao_ordenada[0]
                 populacao_ordenada = self.ordena_populacao()
                 melhor_individuo = populacao_ordenada[0]
-                if self.taxa_de_mutacao > 0.5:
+                if self.taxa_de_mutacao > 0.8:
                     pass
                 elif antigo_melhor == melhor_individuo:
-                    self.taxa_de_mutacao+=0.01
+                    self.taxa_de_mutacao+=0.001
+                    if self.peso_da_mutacao < 100:
+                        self.peso_da_mutacao += 1
                 else: 
                     self.taxa_de_mutacao = self.taxa_de_mutacao_original
+                    self.peso_da_mutacao = 50
+
                 elite = deepcopy(populacao_ordenada[:self.qnt_elite])
                 #recombina os genes dos pais
-                self.populacao = self.recombina_messy(populacao_ordenada)
+                self.populacao = self.recombinacao_aleatoria(populacao_ordenada)
                 self.etapa_mutacao()
-                self.regenera_populacao()
-                for individuo in elite:#mutar a elite???? ou clones da elite
+                for individuo in elite:
                     self.populacao.append(individuo)
+                self.regenera_populacao()
                 
                 print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
             
@@ -54,11 +59,11 @@ class Otimizacao():
         return populacao
 
     def regenera_populacao(self): 
-        while(len(self.populacao)<self.qnt_individuos-self.qnt_elite):
+        while(len(self.populacao)<self.qnt_individuos):
             self.populacao.append(Individuo(etapas=etapas,hobbits=deepcopy(hobbits)))
         return
     
-    def recombina_populacao(self, populacao_ordenada):
+    def recombinacao_pelo_meio(self, populacao_ordenada):
         
         nova_populacao = []
         pais = populacao_ordenada[:self.qnt_pais]
@@ -73,15 +78,15 @@ class Otimizacao():
 
         return nova_populacao
     
-    def recombina_messy(self, populacao_ordenada):
+    def recombinacao_aleatoria(self, populacao_ordenada):
 
         nova_populacao = []
         pais = populacao_ordenada[:self.qnt_pais]
 
         for i in range(self.qnt_filhos):
             individuo = []
-            #pais_especificos = random.choices(pais,k=2)
-            pais_especificos = self.seleciona_pais()
+            pais_especificos = random.choices(pais,k=2)
+            #pais_especificos = self.seleciona_pais()
             if len(pais_especificos) != 2:
                 filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas)
             else:
@@ -200,8 +205,10 @@ class Otimizacao():
 
 
     def etapa_mutacao(self):    #Responsavel pela etapa de mutacao do algoritimo genetico
+        
+        lista_ponderada = [0] * self.peso_da_mutacao + [1] * (100 - self.peso_da_mutacao)
         for i in range(round(self.taxa_de_mutacao * (self.qnt_individuos-self.qnt_filhos))):
-            mutacao = random.randint(0,1)
+            mutacao = random.choice(lista_ponderada)
             if mutacao == 1:
                 self.mutacao_completa()
             else:
@@ -216,7 +223,7 @@ class Otimizacao():
         return self.melhor_individuo
 
 if __name__ == '__main__':
-    Otimizacao=Otimizacao(qnt_individuos=1000, taxa_de_mutacao=0.05, qnt_elite=20, geracoes=1000, qnt_pais=500, qnt_filhos=800, tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")
