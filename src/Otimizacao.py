@@ -240,7 +240,7 @@ class Otimizacao():
 
 if __name__ == '__main__':
     #Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
-    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, taxa_elite=0.1, geracoes=1000, taxa_pais=0.5, taxa_filhos=0.5,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, taxa_elite=0.1, geracoes=600, taxa_pais=0.5, taxa_filhos=0.5,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
     Otimizacao.run()
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
