@@ -13,10 +13,7 @@ class Individuo():
             self.individuo = individuo
         else:
             self.individuo = self.cria_individuo() #A estrutura representando o individuo em si
-        self.tempoGasto = self.calcula_tempo() #Individuo mais apto sera o com menor tempo
-        #print(self.individuo)
-        #print(self.hobbits)
-        #print(self.tempoGasto)
+        self.tempoGasto,self.tempo_por_etapa = self.calcula_tempo() #Individuo mais apto sera o com menor tempo   
     
     def cria_individuo(self):
         distr = []
@@ -43,6 +40,7 @@ class Individuo():
     
     def calcula_tempo(self):
         tempoTotal = 0
+        tempo_por_etapa = []
         for etapa,hobbits in self.individuo:
             dificuldade = self.etapas[etapa]
             agilidade = 0
@@ -55,14 +53,15 @@ class Individuo():
             except:
                 raise Exception
             tempoTotal+=tempoGasto
-        return tempoTotal
+            tempo_por_etapa.append(tempoGasto)
+        return tempoTotal,tempo_por_etapa
 
     def get_fitness(self):
         return self.tempoGasto
 
     def salva_individuo(self):
-        fitness = 0
-        arq = open("trabalho-1-senhor-dos-aneis-grupo-2/melhor_individuo.txt","r")
+        fitness = 10000
+        arq = open("melhor_individuo.txt","r")
         for linha in arq:
             if "Fitness" in linha:
                 lista_linha = linha.split(" ")
@@ -71,12 +70,13 @@ class Individuo():
                 break
         
         if self.tempoGasto < fitness:
-            arq = open("trabalho-1-senhor-dos-aneis-grupo-2/melhor_individuo.txt",'w')
+            arq = open("melhor_individuo.txt",'w')
             arq.write("Fitness: {fitness}".format(fitness = self.tempoGasto))
-            for etapa in self.individuo:
+            for i,etapa in enumerate(self.individuo):
                 arq.write("\n" + etapa[0] + " ")
                 for hobbit in etapa[1]:
                     arq.write(hobbit + " ")
+                arq.write(str(self.tempo_por_etapa[i]))
         arq.close
 
 if __name__ == '__main__':

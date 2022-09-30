@@ -69,7 +69,10 @@ class Otimizacao():
         pais = populacao_ordenada[:self.qnt_pais]
         
         for i in range(self.qnt_filhos):
-            pai_especifico = random.choices(pais,k=2)
+            #pai_especifico = random.choices(pais,k=2)
+            pai_especifico = []
+            pai_especifico.append(self.seleciona_pais())
+            pai_especifico.append(self.seleciona_pais())
             #primeira metade do primeiro pai, segunda metade do segundo pai
             individuo = pai_especifico[0].individuo[:int(self.tamanho_do_individuo/2)] + pai_especifico[1].individuo[int(self.tamanho_do_individuo/2):]
             individuo = self.valida_individuo(individuo)
@@ -111,7 +114,7 @@ class Otimizacao():
             pi = i.get_fitness()/total_fitness
 
             if r < pi:
-                pais.append(i)
+                return i
             else:
                 r -= pi
 
@@ -142,7 +145,7 @@ class Otimizacao():
                 for j, posicao in enumerate(individuo):
                     if hobbit in posicao[1] and len(posicao[1]) > 1:
                         etapas.append(j)
-                while qnt_hobbit[i] > 7:
+            while qnt_hobbit[i] > 7:
                     #if hobbit in individuo[etapa][1] and len(individuo[etapa][1]) > 1:
                     #    individuo[etapa][1].remove(hobbit)
                     #    qnt_hobbit[i] -= 1
@@ -151,13 +154,16 @@ class Otimizacao():
                     #    #print("Houve algum erro na validação do individuo")
                     #    #Individuo é invalido, retorna None para gerar um novo individuo
                     #    return None
-                    if etapas == []:
-                        return None
-                    etapa = random.choice(etapas)
-                    individuo[etapa][1].remove(hobbit)
-                    etapas.remove(etapa)
-                    qnt_hobbit[i] -= 1
-
+                if etapas == []:
+                    return None
+                etapa = random.choice(etapas)
+                individuo[etapa][1].remove(hobbit)
+                etapas.remove(etapa)
+                qnt_hobbit[i] -= 1
+                etapa+=1
+                if etapa >= self.tamanho_do_individuo:
+                    #Individuo é invalido, retorna None para gerar um novo individuo
+                    return None
         #colocar os que faltam
         for pos in range(len(qnt_hobbit)):
             hobbit = hobbits[pos][0]
