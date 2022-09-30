@@ -1,0 +1,18 @@
+Fitness: 593.7465790914067
+etapa_2 Pippin 
+etapa_3 Sam 
+etapa_4 Frodo 
+etapa_5 Frodo 
+etapa_6 Frodo 
+etapa_7 Pippin Merry 
+etapa_8 Merry Pippin 
+etapa_9 Pippin Merry 
+etapa_A Pippin Merry 
+etapa_B Pippin Merry 
+etapa_C Sam Merry 
+etapa_D Merry Sam 
+etapa_E Frodo Sam 
+etapa_F Frodo Sam 
+etapa_G Frodo Sam 
+etapa_H Frodo Sam 
+etapa_final Pippin 
