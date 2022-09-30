@@ -8,49 +8,68 @@ from copy import deepcopy
 
 class Otimizacao():
 
-    def __init__(self, qnt_individuos, taxa_de_mutacao, qnt_elite, geracoes, qnt_pais, qnt_filhos, tamanho_do_individuo):
+    def __init__(self, qnt_individuos, taxa_de_mutacao, taxa_elite, geracoes, taxa_pais, taxa_filhos, taxa_novos_individuos, tamanho_do_individuo):
             
+            if taxa_elite + taxa_filhos + taxa_novos_individuos > 1:
+                print("Taxas de elite + filhos + novos individuos deve ser inferior que 1")
+                return None
+
             self.qnt_individuos = qnt_individuos
             self.taxa_de_mutacao = taxa_de_mutacao
             self.taxa_de_mutacao_original = taxa_de_mutacao
-            self.qnt_elite = qnt_elite
+            self.qnt_elite =int(qnt_individuos * taxa_elite)
             self.geracoes = geracoes
-            self.qnt_pais = qnt_pais
-            self.qnt_filhos = qnt_filhos
+            self.qnt_pais = int(qnt_individuos * taxa_pais)
+            self.qnt_filhos = int(qnt_individuos * taxa_filhos)
             self.tamanho_do_individuo = tamanho_do_individuo
             self.peso_da_mutacao = 50
-            populacao_ordenada = []
-            antigo_melhor = []
+            self.tamanho_nova_geracao = qnt_individuos - self.qnt_elite - int(qnt_individuos * taxa_novos_individuos)
+            self.ultima_geracao_ordenada = []
+            self.melhor_individuo = []
             
             self.populacao = self.cria_populacao()
-            
-            for geracao in range(self.geracoes):
-                if populacao_ordenada != []:
-                    antigo_melhor = populacao_ordenada[0]
-                populacao_ordenada = self.ordena_populacao()
-                melhor_individuo = populacao_ordenada[0]
-                if self.taxa_de_mutacao > 0.8:
-                    pass
-                elif antigo_melhor == melhor_individuo:
-                    self.taxa_de_mutacao+=0.001
-                    if self.peso_da_mutacao < 100:
-                        self.peso_da_mutacao += 1
-                else: 
-                    self.taxa_de_mutacao = self.taxa_de_mutacao_original
-                    self.peso_da_mutacao = 50
 
-                elite = deepcopy(populacao_ordenada[:self.qnt_elite])
-                #recombina os genes dos pais
-                self.populacao = self.recombinacao_aleatoria(populacao_ordenada)
-                self.etapa_mutacao()
-                for individuo in elite:
-                    self.populacao.append(individuo)
-                self.regenera_populacao()
-                
-                print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
+    def run(self):
+        populacao_ordenada = []
+        antigo_melhor = []    
+        for geracao in range(self.geracoes):
+            #salva melhor individuo antigo para usar depois
+            if populacao_ordenada != []:
+                antigo_melhor = populacao_ordenada[0]
+            #ordena pelo melhor fitness
+            populacao_ordenada = self.ordena_populacao()
+            melhor_individuo = populacao_ordenada[0]
+            #altera a taxa de mutacao baseado se o melhor individuo esta mudando ou nao
+            if self.taxa_de_mutacao > 0.05:
+                pass
+            elif antigo_melhor == melhor_individuo:
+                self.taxa_de_mutacao+=0.001
+                if self.peso_da_mutacao < 100:
+                    self.peso_da_mutacao += 1
+            else: 
+                self.taxa_de_mutacao = self.taxa_de_mutacao_original
+                self.peso_da_mutacao = 50
+            #seleciona a elite
+            elite = deepcopy(populacao_ordenada[:self.qnt_elite])
+            #recombina os genes dos pais na nova geracao
+            nova_geracao = self.recombinacao_aleatoria(populacao_ordenada)
+            #adiciona nova geracao a populacao
+            for individuo in nova_geracao:
+                self.populacao.append(individuo)
+            #selecionando a nova geracao baseado nos melhores
+            self.populacao = self.ordena_populacao()[:self.tamanho_nova_geracao]
+            #mutacao
+            self.etapa_mutacao()
+            #volta com a elite
+            for individuo in elite:
+                self.populacao.append(individuo)
+            #cria novos individuos aleatorios
+            self.regenera_populacao()
             
-            self.ultima_geracao_ordenada = self.ordena_populacao()
-            self.melhor_individuo = self.ultima_geracao_ordenada[0]
+            print("Geracao {geracao} concluida! --- Tempo do melhor individuo = {tempo:.2f}".format(geracao = geracao, tempo=populacao_ordenada[0].tempoGasto))
+        
+        self.ultima_geracao_ordenada = self.ordena_populacao()
+        self.melhor_individuo = self.ultima_geracao_ordenada[0]
 
     def cria_populacao(self):
         populacao = []
@@ -230,7 +249,8 @@ class Otimizacao():
 
 if __name__ == '__main__':
     #Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
-    Otimizacao=Otimizacao(qnt_individuos=200, taxa_de_mutacao=0.01, qnt_elite=20, geracoes=1000, qnt_pais=100, qnt_filhos=150, tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=1000, taxa_de_mutacao=0.01, taxa_elite=0.2, geracoes=1000, taxa_pais=0.8, taxa_filhos=0.7,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
+    Otimizacao.run()
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")
