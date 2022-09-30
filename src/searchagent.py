@@ -1,4 +1,4 @@
-from src.utils import MinHeap
+from utils import MinHeap
 
 import typing
 from math import inf as infinity
@@ -55,12 +55,17 @@ class SearchAgent(typing.Generic[T]):
         expansion_function
             Funtion that returns all nodes that can be reached for a given node (its neighbors)
         '''
-        self.frontier: MinHeap[Node[T]] = MinHeap()
         self.get_cost = cost_function
         self.heuristic = heuristic_function
         self.expand_neighbors = expansion_function
+        self.frontier: MinHeap[Node[T]] = MinHeap()
         self.current_node: typing.Optional[Node[T]] = None
         self.possible_next_node: typing.Optional[Node[T]] = None
+    
+    def reset(self):
+        self.frontier = MinHeap()
+        self.current_node = None
+        self.possible_next_node = None
 
     def reconstruct_path(self, destination: Node[T]) -> typing.List[T]:
         path: typing.List[T] = [destination.wrapped]
