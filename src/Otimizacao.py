@@ -22,7 +22,7 @@ class Otimizacao():
             self.qnt_pais = int(qnt_individuos * taxa_pais)
             self.qnt_filhos = int(qnt_individuos * taxa_filhos)
             self.tamanho_do_individuo = tamanho_do_individuo
-            self.peso_da_mutacao = 50
+            self.peso_da_mutacao = 50 # varia de 0 a 100, 50 e o meio
             self.tamanho_nova_geracao = qnt_individuos - self.qnt_elite - int(qnt_individuos * taxa_novos_individuos)
             self.ultima_geracao_ordenada = []
             self.melhor_individuo = []
@@ -40,10 +40,9 @@ class Otimizacao():
             populacao_ordenada = self.ordena_populacao()
             melhor_individuo = populacao_ordenada[0]
             #altera a taxa de mutacao baseado se o melhor individuo esta mudando ou nao
-            if self.taxa_de_mutacao > 0.05:
-                pass
-            elif antigo_melhor == melhor_individuo:
-                self.taxa_de_mutacao+=0.001
+            if antigo_melhor == melhor_individuo:
+                if self.taxa_de_mutacao < 0.05: #taxa de mutacao maxima
+                    self.taxa_de_mutacao += 0.001
                 if self.peso_da_mutacao < 100:
                     self.peso_da_mutacao += 1
             else: 
@@ -165,14 +164,6 @@ class Otimizacao():
                     if hobbit in posicao[1] and len(posicao[1]) > 1:
                         etapas.append(j)
             while qnt_hobbit[i] > 7:
-                    #if hobbit in individuo[etapa][1] and len(individuo[etapa][1]) > 1:
-                    #    individuo[etapa][1].remove(hobbit)
-                    #    qnt_hobbit[i] -= 1
-                    #etapa+=1
-                    #if etapa >= self.tamanho_do_individuo:
-                    #    #print("Houve algum erro na validação do individuo")
-                    #    #Individuo é invalido, retorna None para gerar um novo individuo
-                    #    return None
                 if etapas == []:
                     return None
                 etapa = random.choice(etapas)
@@ -249,7 +240,7 @@ class Otimizacao():
 
 if __name__ == '__main__':
     #Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
-    Otimizacao=Otimizacao(qnt_individuos=1000, taxa_de_mutacao=0.01, taxa_elite=0.2, geracoes=1000, taxa_pais=0.8, taxa_filhos=0.7,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, taxa_elite=0.1, geracoes=1000, taxa_pais=0.8, taxa_filhos=0.7,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
     Otimizacao.run()
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
