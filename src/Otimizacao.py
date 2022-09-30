@@ -229,7 +229,8 @@ class Otimizacao():
         return self.melhor_individuo
 
 if __name__ == '__main__':
-    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
+    #Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=200, taxa_de_mutacao=0.01, qnt_elite=20, geracoes=1000, qnt_pais=100, qnt_filhos=150, tamanho_do_individuo=16)
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")

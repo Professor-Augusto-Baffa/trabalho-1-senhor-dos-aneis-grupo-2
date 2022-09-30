@@ -61,7 +61,7 @@ class Individuo():
 
     def salva_individuo(self):
         fitness = 10000
-        arq = open("melhor_individuo.txt","r")
+        arq = open("trabalho-1-senhor-dos-aneis-grupo-2/melhor_individuo.txt","r")
         for linha in arq:
             if "Fitness" in linha:
                 lista_linha = linha.split(" ")
@@ -70,7 +70,7 @@ class Individuo():
                 break
         
         if self.tempoGasto < fitness:
-            arq = open("melhor_individuo.txt",'w')
+            arq = open("trabalho-1-senhor-dos-aneis-grupo-2/melhor_individuo.txt",'w')
             arq.write("Fitness: {fitness}".format(fitness = self.tempoGasto))
             for i,etapa in enumerate(self.individuo):
                 arq.write("\n" + etapa[0] + " ")
