@@ -4,6 +4,8 @@ import enum
 import typing
 import pygame
 
+PATH_INDICATORS_ENABLED = True
+
 class Window:
 
     RendererType = typing.Callable[[pygame.Surface], None]
@@ -275,6 +277,23 @@ class PathDisplay(Rendered):
         self.size = size
         self.path = path
         self.is_done = is_done
+        self._indicate_direction: bool = False
+        self._n_dir_indicators: int = 0
+        self._dir_indicators: typing.List[int] = []
+        if not PATH_INDICATORS_ENABLED: return
+        if not is_done: return
+        n = len(path)
+        if n < 3:
+            return
+        self._indicate_direction = True
+        self._n_dir_indicators = min(int(n / 3), 5)
+        self._dir_indicators = [ i + 1 for i in range(self._n_dir_indicators) ]
+    
+    def _update_dir_indicators(self) -> None:
+        for i in range(self._n_dir_indicators):
+            self._dir_indicators[i] += 1
+            if self._dir_indicators[i] >= len(self.path) - 1:
+                self._dir_indicators[i] = 1
 
     def draw_tile(self, index: typing.Tuple[int, int], color: str, surface: pygame.Surface) -> None:
         tile_width = self.size[0] / self.map.n_cols
@@ -286,6 +305,17 @@ class PathDisplay(Rendered):
         pos_x = self.pos[0] + index[1] * size - 1
         pos_y = self.pos[1] + index[0] * size - 1
         pygame.draw.rect(surface, pygame.Color(color), pygame.Rect(pos_x,pos_y,size+1,size+1))
+
+    def _draw_dir_indicators(self, surface: pygame.Surface) -> None:
+        min_alpha = 51
+        max_alpha = 179
+        indicators_surface = pygame.Surface(surface.get_size())
+        indicators_surface.set_alpha(255)
+        step = (max_alpha - min_alpha) / self._n_dir_indicators
+        for i, path_i in enumerate(self._dir_indicators):
+            color = pygame.Color(200, 0, 200, int(min_alpha + i * step))
+            self.draw_tile(self.path[path_i], color, indicators_surface)
+        surface.blit(indicators_surface, (0, 0))
 
     def draw(self, surface: pygame.Surface) -> None:
         start_color = '#FF0000' if not self.is_done else 'darkgoldenrod1'
@@ -299,3 +329,6 @@ class PathDisplay(Rendered):
             for i in range(1, n - 1):
                 self.draw_tile(self.path[i], middle_color, surface)
         self.draw_tile(self.path[-1], end_color, surface)
+        if self._indicate_direction:
+            self._draw_dir_indicators(surface)
+            self._update_dir_indicators()
