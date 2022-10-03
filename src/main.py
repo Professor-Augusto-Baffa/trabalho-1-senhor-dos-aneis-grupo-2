@@ -167,7 +167,7 @@ class App:
     def __init__(self):
         pygame.init()
         
-        self.mapa = map.Map.read_from_file("trabalho-1-senhor-dos-aneis-grupo-2/mapa.txt")
+        self.mapa = map.Map.read_from_file("mapa.txt")
 
         self.running = True
 
