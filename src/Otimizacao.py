@@ -8,12 +8,12 @@ from copy import deepcopy
 
 class Otimizacao():
 
-    def __init__(self, qnt_individuos, taxa_de_mutacao, taxa_elite, geracoes, taxa_pais, taxa_filhos, taxa_novos_individuos, tamanho_do_individuo):
+    def __init__(self, qnt_individuos, taxa_de_mutacao, taxa_elite, geracoes, taxa_pais, taxa_filhos, tamanho_do_individuo):
             
-            if taxa_elite + taxa_filhos + taxa_novos_individuos > 1:
-                print("Taxas de elite + filhos + novos individuos deve ser inferior que 1")
+            if taxa_elite + taxa_filhos > 1:
+                print("Taxas de elite + filhos deve ser inferior que 1")
                 return None
-
+            taxa_novos_individuos = 1 - taxa_elite - taxa_filhos
             self.qnt_individuos = qnt_individuos
             self.taxa_de_mutacao = taxa_de_mutacao
             self.taxa_de_mutacao_original = taxa_de_mutacao
@@ -43,11 +43,11 @@ class Otimizacao():
             if antigo_melhor == melhor_individuo:
                 if self.taxa_de_mutacao < 0.05: #taxa de mutacao maxima
                     self.taxa_de_mutacao += 0.001
-                if self.peso_da_mutacao < 100:
-                    self.peso_da_mutacao += 1
+            #    if self.peso_da_mutacao < 100:
+            #        self.peso_da_mutacao += 1
             else: 
                 self.taxa_de_mutacao = self.taxa_de_mutacao_original
-                self.peso_da_mutacao = 50
+            #    self.peso_da_mutacao = 50
             #seleciona a elite
             elite = deepcopy(populacao_ordenada[:self.qnt_elite])
             #recombina os genes dos pais na nova geracao
@@ -82,7 +82,7 @@ class Otimizacao():
         return
     
     def recombinacao_pelo_meio(self, populacao_ordenada):
-        
+        #não usamos mas deixamos aqui para mostrar que foi a nossa primeira opção de recombinação
         nova_populacao = []
         pais = populacao_ordenada[:self.qnt_pais]
         
@@ -106,8 +106,9 @@ class Otimizacao():
 
         for i in range(self.qnt_filhos):
             individuo = []
+            pais_especificos = []
             pais_especificos = random.choices(pais,k=2)
-            #pais_especificos = self.seleciona_pais()
+            #pais_especificos.append(self.seleciona_pais())
             if len(pais_especificos) != 2:
                 filho = Individuo(hobbits=deepcopy(hobbits), etapas=etapas)
             else:
@@ -239,11 +240,11 @@ class Otimizacao():
         return self.melhor_individuo
 
 if __name__ == '__main__':
-    #Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, qnt_elite=50, geracoes=500, qnt_pais=300, qnt_filhos=300, tamanho_do_individuo=16)
-    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, taxa_elite=0.1, geracoes=600, taxa_pais=0.5, taxa_filhos=0.5,taxa_novos_individuos=0.1 , tamanho_do_individuo=16)
+    Otimizacao=Otimizacao(qnt_individuos=500, taxa_de_mutacao=0.01, taxa_elite=0.05, geracoes=500, taxa_pais=0.7, taxa_filhos=0.7, tamanho_do_individuo=16)
     Otimizacao.run()
     melhor_individuo = Otimizacao.get_melhor_individuo()
     print("Terminei")
     print("Melhor individuo:")
     print(melhor_individuo.individuo)
+    print(melhor_individuo.get_fitness())
     melhor_individuo.salva_individuo()

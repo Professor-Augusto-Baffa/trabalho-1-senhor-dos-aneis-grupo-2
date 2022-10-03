@@ -1,18 +1,18 @@
 Fitness: 593.7465790914067
-etapa_2 Pippin 
-etapa_3 Sam 
-etapa_4 Frodo 
-etapa_5 Frodo 
-etapa_6 Frodo 
-etapa_7 Pippin Merry 
-etapa_8 Merry Pippin 
-etapa_9 Pippin Merry 
-etapa_A Pippin Merry 
-etapa_B Pippin Merry 
-etapa_C Sam Merry 
-etapa_D Merry Sam 
-etapa_E Frodo Sam 
-etapa_F Frodo Sam 
-etapa_G Frodo Sam 
-etapa_H Frodo Sam 
-etapa_final Pippin 
+etapa_2 Sam Pippin 8.333333333333334
+etapa_3 Pippin Merry Sam 21.42857142857143
+etapa_4 Frodo 40.0
+etapa_5 Frodo 43.333333333333336
+etapa_6 Frodo 46.666666666666664
+etapa_7 Pippin Merry 30.0
+etapa_8 Sam Merry 32.0
+etapa_9 Pippin 34.0
+etapa_A Merry Pippin 36.0
+etapa_B Merry 38.0
+etapa_C Sam Merry 37.03703703703704
+etapa_D Merry Frodo Pippin 40.74074074074074
+etapa_E Sam 41.37931034482759
+etapa_F Frodo Sam 44.827586206896555
+etapa_G Frodo Sam 48.275862068965516
+etapa_H Frodo 51.724137931034484
+etapa_final Pippin 0.0
